@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Logiciel de modification</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+            --header-bg: #ffffff;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            flex: 0 0 auto;
+            background-color: var(--header-bg);
+            padding: 10px 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        #OneView {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        input[type="text"], #URLInput {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            background: #fff;
+        }
+
+        #URLInput:focus, #inputmodif:focus, #finEnv textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #v {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: white;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #modifInfo {
+            display: none;
+            flex: 0 0 auto;
+            background-color: #ffffff;
+            border-top: 1px solid var(--border-color);
+            padding: 12px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        #modifInfo p {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 8px 10px;
+            border-radius: 6px;
+            max-height: 50px;
+            overflow-y: auto;
+        }
+
+        .inputs-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #inputmodif {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .file-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 14px;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .file-upload-btn:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #TwoView {
+            display: none;
+        }
+
+        #finEnv {
+            display: none;
+            flex: 1;
+            padding: 24px;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+            overflow-y: auto;
+        }
+
+        .finEnv-card {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .finEnv-card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .finEnv-card label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .finEnv-card textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+            outline: none;
+        }
+
+        .file-dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .file-dropzone:hover {
+            border-color: var(--primary);
+            background-color: #f0f4ff;
+        }
+
+        .file-dropzone p {
+            margin: 0;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            #OneView {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+                padding: 12px;
+            }
+            .inputs-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="OneView">
+            <input id="URLInput" placeholder="https://example.com" type="url" autocapitalize="none">
+            <button id="loadButton">Charger</button>
+        </div>
+
+        <div id="TwoView">
+            <button onclick="Env()">Envoyer les modifications</button>
+        </div>
+    </header>
+
+    <iframe id="v" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
+    
+    <div id="modifInfo">
+        <p id="modifp"></p>
+        <div class="inputs-container">
+            <input id="inputmodif" placeholder="Note sur cet élément...">
+            <label for="FileNote" class="file-upload-btn" id="FileNoteLabel">📎 Fichier</label>
+            <input type="file" id="FileNote">
+        </div>
+    </div>
+
+    <div id="finEnv">
+        <div class="finEnv-card">
+            <h2>Finaliser l'envoi</h2>
+            <div>
+                <label for="autreNoteText">Autre note :</label>
+                <textarea id="autreNoteText" placeholder="Ajoutez vos remarques globales ici..."></textarea>
+            </div>
+            
+            <label for="FinFile" class="file-dropzone">
+                <p id="FinFileLabel">📁 Cliquez ici pour joindre un fichier global</p>
+            </label>
+            <input type="file" id="FinFile">
+
+            <button id="finalSubmitBtn" onclick="envoyerTout()">Envoyer</button>
+        </div>
+    </div>
+
+    <script>
+        const v = document.getElementById("v");
+
+        let listeChang = [];
+        let listeModif = [];
+        let notes = {};
+        let elementCourant = null;
+
+        document.getElementById("loadButton").addEventListener("click", getHTML);
+
+        const fileNoteInput = document.getElementById("FileNote");
+        const fileNoteLabel = document.getElementById("FileNoteLabel");
+        fileNoteInput.addEventListener("change", function() {
+            if (this.files && this.files.length > 0) {
+                fileNoteLabel.textContent = "📄 " + this.files[0].name;
+            } else {
+                fileNoteLabel.textContent = "📎 Fichier";
+            }
+            sauvegarderNoteCourante();
+        });
+
+        const finFileInput = document.getElementById("FinFile");
+        const finFileLabel = document.getElementById("FinFileLabel");
+        finFileInput.addEventListener("change", function() {
+            if (this.files && this.files.length > 0) {
+                finFileLabel.textContent = "📄 " + this.files[0].name;
+            } else {
+                finFileLabel.textContent = "📁 Cliquez ici pour joindre un fichier global";
+            }
+        });
+
+        function envoyerListeNotes() {
+            if (v.contentWindow) {
+                v.contentWindow.postMessage({
+                    type: "APPLIQUER_NOTES",
+                    selectors: Object.keys(notes)
+                }, "*");
+            }
+        }
+
+        function sauvegarderNoteCourante() {
+            if (!elementCourant) return;
+            const note = inputmodif.value.trim();
+            const fichier = fileNoteInput.files[0] ? fileNoteInput.files[0].name : null;
+
+            if (note === "" && !fichier) return;
+
+            const sel = elementCourant.selector;
+            if (notes[sel]) {
+                notes[sel].note = note;
+                notes[sel].fichier = fichier;
+                listeModif[notes[sel].index] = { note: note, fichier: fichier };
+            } else {
+                listeChang.push([
+                    elementCourant.tag,
+                    elementCourant.id,
+                    elementCourant.classe,
+                    elementCourant.texte
+                ]);
+                listeModif.push({ note: note, fichier: fichier });
+                notes[sel] = { 
+                    note: note, 
+                    fichier: fichier, 
+                    index: listeModif.length - 1 
+                };
+            }
+            envoyerListeNotes();
+        }
+
+        const TwoView = document.getElementById('TwoView');
+        const OneView = document.getElementById('OneView');
+
+        async function getHTML() {
+            TwoView.style.display = "block";
+            OneView.style.display = "none";
+            listeChang = [];
+            listeModif = [];
+            notes = {};
+            elementCourant = null;
+            inputmodif.value = "";
+            fileNoteInput.value = "";
+            fileNoteLabel.textContent = "📎 Fichier";
+            modifInfo.style.display = "none";
+
+            let url = document.getElementById("URLInput").value.trim();
+            if (!url) return;
+
+            if (!/^https?:\/\//i.test(url)) {
+                url = "https://" + url;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Erreur HTTP : " + response.status);
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+
+                doc.querySelectorAll('meta[http-equiv="Content-Security-Policy"]').forEach(meta => meta.remove());
+                let base = doc.querySelector("base");
+                if (!base) {
+                    base = doc.createElement("base");
+                    doc.head.prepend(base);
+                }
+                base.href = url;
+
+                doc.querySelectorAll("a[href]").forEach(a => a.removeAttribute("href"));
+
+                doc.querySelectorAll("*").forEach(el => {
+                    Array.from(el.attributes).forEach(attr => {
+                        if (attr.name.toLowerCase().startsWith("on")) {
+                            el.removeAttribute(attr.name);
+                        }
+                    });
+                });
+
+                const inspector = `
+                    let elementActuel = null;
+                    let elementSurvole = null;
+                    const selectorsCommentes = new Set();
+
+                    function getSelector(element) {
+                        if (element.id) {
+                            return "#" + CSS.escape(element.id);
+                        }
+                        let selector = "";
+                        while (element && element.nodeType === 1) {
+                            let partie = element.tagName.toLowerCase();
+                            if (element.id) {
+                                partie += "#" + CSS.escape(element.id);
+                                selector = partie + (selector ? " > " + selector : "");
+                                break;
+                            }
+                            let parent = element.parentElement;
+                            if (parent) {
+                                let similaires = Array.from(parent.children).filter(e => e.tagName === element.tagName);
+                                if (similaires.length > 1) {
+                                    partie += ":nth-of-type(" + (similaires.indexOf(element) + 1) + ")";
+                                }
+                            }
+                            selector = partie + (selector ? " > " + selector : "");
+                            element = parent;
+                        }
+                        return selector;
+                    }
+
+                    function estProtege(el) {
+                        if (el === elementActuel) return true;
+                        try {
+                            for (let sel of selectorsCommentes) {
+                                if (el.matches(sel)) return true;
+                            }
+                        } catch (e) {}
+                        return false;
+                    }
+
+                    document.addEventListener("mouseover", function(event) {
+                        const el = event.target;
+                        if (!el || el === document.documentElement || el === document.body) return;
+                        
+                        if (!estProtege(el)) {
+                            if (elementSurvole && !estProtege(elementSurvole)) {
+                                elementSurvole.style.removeProperty("outline");
+                            }
+                            elementSurvole = el;
+                            el.style.setProperty("outline", "2px dashed #4f46e5", "important");
+                        }
+                    }, true);
+
+                    document.addEventListener("mouseout", function(event) {
+                        const el = event.target;
+                        if (el && !estProtege(el) && el === elementSurvole) {
+                            el.style.removeProperty("outline");
+                            elementSurvole = null;
+                        }
+                    }, true);
+
+                    document.addEventListener("click", function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const el = event.target;
+                        if (!el || el === document.documentElement) return;
+
+                        if (elementActuel && elementActuel !== el) {
+                            const ancien = elementActuel;
+                            let ancienCommente = false;
+                            try {
+                                ancienCommente = selectorsCommentes.has(getSelector(ancien));
+                            } catch (e) {}
+
+                            if (ancienCommente) {
+                                ancien.style.setProperty("outline", "3px solid yellow", "important");
+                            } else {
+                                ancien.style.removeProperty("outline");
+                            }
+                        }
+
+                        elementActuel = el;
+                        elementActuel.style.setProperty("outline", "3px solid red", "important");
+
+                        window.parent.postMessage({
+                            type: "ELEMENT_CLIQUE",
+                            tag: el.tagName.toLowerCase(),
+                            id: el.id,
+                            classe: el.className || "",
+                            texte: el.innerText?.trim().substring(0, 150) || "",
+                            selector: getSelector(el)
+                        }, "*");
+                    }, true);
+
+                    window.addEventListener("message", function(event) {
+                        if (event.source !== window.parent) return;
+                        const data = event.data;
+                        if (!data || data.type !== "APPLIQUER_NOTES") return;
+                        
+                        selectorsCommentes.clear();
+                        data.selectors.forEach(function(sel) {
+                            selectorsCommentes.add(sel);
+                            let el = null;
+                            try { el = document.querySelector(sel); } catch (e) {}
+                            if (el) {
+                                el.style.setProperty("outline", "3px solid yellow", "important");
+                            }
+                        });
+                    });
+
+                    window.addEventListener("load", function() {
+                        window.parent.postMessage({ type: "PAGE_PRETE" }, "*");
+                    });
+                `;
+
+                const injectedScript = '<script>' + inspector + '</scr' + 'ipt>';
+                if (doc.body) {
+                    doc.body.insertAdjacentHTML("beforeend", injectedScript);
+                } else {
+                    doc.documentElement.insertAdjacentHTML("beforeend", injectedScript);
+                }
+                v.srcdoc = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+            } catch (error) {
+                console.error("Erreur :", error);
+                alert("Impossible de charger cette URL (problème de CORS ou site inaccessible directement par fetch).");
+            }
+        }
+
+        const modifInfo = document.getElementById('modifInfo');
+        const inputmodif = document.getElementById('inputmodif');
+        const finEnv = document.getElementById('finEnv');
+
+        window.addEventListener("message", function(event) {
+            if (event.source !== v.contentWindow) return;
+            const data = event.data;
+
+            if (data.type === "ELEMENT_CLIQUE") {
+                sauvegarderNoteCourante();
+                elementCourant = data;
+                document.getElementById("modifp").innerHTML = "<b>Sélectionné :</b> " + (data.texte ? data.texte : "<i>Élément sans texte</i>");
+                modifInfo.style.display = "block";
+                
+                const existingData = notes[data.selector];
+                inputmodif.value = existingData ? existingData.note : '';
+                fileNoteInput.value = "";
+                fileNoteLabel.textContent = existingData && existingData.fichier ? "📄 " + existingData.fichier : "📎 Fichier";
+
+                inputmodif.focus();
+            }
+
+            if (data.type === "PAGE_PRETE") {
+                envoyerListeNotes();
+            }
+        });
+
+        inputmodif.addEventListener("input", sauvegarderNoteCourante);
+
+        function Env() {
+            sauvegarderNoteCourante();
+            v.style.display = "none";
+            modifInfo.style.display = "none";
+            TwoView.style.display = "none";
+            finEnv.style.display = "block";
+        }
+
+        function envoyerTout() {
+            let t = '';
+            for (let i = 0; i < listeChang.length; i++) {
+                const noteInfo = listeModif[i];
+                t += `Élément [Tag: ${listeChang[i][0]}, ID: ${listeChang[i][1]}, Classe: ${listeChang[i][2]}, Texte: ${listeChang[i][3]}] :\n  -> Note: "${noteInfo.note || ''}"\n  -> Fichier: "${noteInfo.fichier || 'aucun'}"\n\n`;
+            }
+
+            const autreNote = document.getElementById("autreNoteText").value.trim();
+            const fichierGlobal = finFileInput.files[0] ? finFileInput.files[0].name : "aucun";
+
+            t += `--- Note Globale ---\nNote : ${autreNote || 'aucune'}\nFichier global : ${fichierGlobal}`;
+
+            alert(t);
+        }
+
+        const URLIMDBID = new URLSearchParams(location.search).get('id');
+        if(URLIMDBID) {
+            console.log(URLIMDBID);
+            document.getElementById('URLInput').value = URLIMDBID;
+            getHTML();
+        }
+    </script>
+</body>
+</html>
